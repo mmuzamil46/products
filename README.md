@@ -179,8 +179,4 @@ Images are uploaded to the `uploads/` directory in the root of the project. The 
 
 ---
 
-## Running the Application
 
-To start the server, run the following command in your terminal:
-
-```bash
