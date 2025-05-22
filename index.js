@@ -18,10 +18,10 @@ app.use(cors())
 
 
 const pool = mysql.createPool({
-  host: '',
-  user: '',
-  password:'',
-  database:''
+  host: 'localhost',
+  user: 'root',
+  password:'vertrigo',
+  database:'productsdb'
 });
 
 // Set up multer storage
@@ -51,6 +51,7 @@ app.get('/connect', async (req, res) =>{
     console.error('Error connecting to the database:', error);
     res.status(500).send('Failed to connect to the database.');
   }
+  
 
 })
 
