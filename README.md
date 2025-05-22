@@ -12,7 +12,6 @@ This project provides a robust backend API for managing product information, inc
 - [Database Setup](#database-setup)
 - [API Endpoints](#api-endpoints)
 - [File Uploads](#file-uploads)
-- [Running the Application](#running-the-application)
 
 ---
 
