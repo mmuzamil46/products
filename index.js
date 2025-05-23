@@ -344,8 +344,44 @@ app.get('/product-details/:productId', async (req, res) => {
   }
 });
 
-
-
+//update product
+app.patch('/updateProduct/:productId',upload.single('main_image'), async (req, res) => {
+   const { productId } = req.params;
+   const { name } = req.body;
+  const main_image_url = req.file ? `/uploads/${req.file.filename}` : null;
+var updateQuery,updateValues,upValue;
+if(!name && !main_image_url)
+{
+  console.log("all fields are empty nothing to update!!");
+  res.status(200).send("all fields are empty nothing to update!!");
+}
+if(!name){
+   updateQuery = 'UPDATE products SET main_image_url = ? WHERE product_id = ?';
+   updateValues =[main_image_url, productId];
+   upValue = "main image";
+} else if(!main_image_url){
+   updateQuery = 'UPDATE products SET name = ? WHERE product_id = ?';
+   updateValues = [name, productId];
+   upValue = "name";
+} else{
+   updateQuery = 'UPDATE products SET name = ?, main_image_url = ? WHERE product_id = ?';
+   updateValues = [name, main_image_url, productId];
+   upValue = "name and main image";
+}
+   try {
+     const con = await pool.getConnection();
+     const [result] = await con.execute(
+       updateQuery,
+       updateValues
+     );
+     con.release();
+     console.log(`Product ${upValue} updated successfully:`, result);
+     res.status(200).send(`Product ${upValue} updated successfully`);
+   } catch (error) {
+     console.error('Error updating product:', error);
+     res.status(500).send('Failed to update product');
+   }
+})
 app.listen(5000,() => console.log('The server is running on 5000'))
 
 
