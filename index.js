@@ -382,6 +382,114 @@ if(!name){
      res.status(500).send('Failed to update product');
    }
 })
+
+
+
+//update  product description
+app.patch('/updateProductDescription/:productId', async (req, res) => {
+   const { productId } = req.params;
+   const { feature, price } = req.body;
+   try {
+     const con = await pool.getConnection();
+     const [result] = await con.execute(
+       'UPDATE product_description SET  feature = ?, price = ? WHERE product_id = ?',
+       [ feature, price, productId]
+     );
+     con.release();
+     console.log('Product description updated successfully:', result);
+     res.status(200).send('Product description updated successfully');
+   } catch (error) {
+     console.error('Error updating product description:', error);
+     res.status(500).send('Failed to update product description');
+   }
+})
+
+//update brief description
+app.patch('/updateBriefDescription/:productId', upload.fields([{name:'desc_main_image',maxCount:1}, 
+  {name:'desc_sub_image_one',maxCount:1},{name:'desc_sub_image_two',maxCount:1}]) ,async (req, res) => { 
+
+    const {productId} = req.params;
+    const { brief_description_title, brief_description, sub_brief_description_one, sub_brief_description_two } = req.body;
+    const desc_main_image = req.files['desc_main_image'] ? `/uploads/${req.files['desc_main_image'][0].filename}` : null;
+    const desc_sub_image_one = req.files['desc_sub_image_one'] ? `/uploads/${req.files['desc_sub_image_one'][0].filename}` : null;
+    const desc_sub_image_two = req.files['desc_sub_image_two'] ? `/uploads/${req.files['desc_sub_image_two'][0].filename}` : null;
+
+    let updateValues = [];
+    let updateQuery = 'UPDATE brief_description SET ';
+    if(brief_description_title){
+      updateQuery += ' brief_description_title = ?, ';
+      updateValues.push(brief_description_title);
+    }
+    if(brief_description){
+      updateQuery += ' brief_description = ?, ';
+      updateValues.push(brief_description);
+    }
+    if(sub_brief_description_one){
+      updateQuery += ' sub_brief_description_one = ?, ';
+      updateValues.push(sub_brief_description_one);
+    }
+    if(sub_brief_description_two){
+      updateQuery += ' sub_brief_description_two = ?, ';
+      updateValues.push(sub_brief_description_two);
+    }
+    if(desc_main_image){
+      updateQuery += ' desc_main_image = ?, ';
+      updateValues.push(desc_main_image);
+
+    }
+    if(desc_sub_image_one){
+      updateQuery += ' desc_sub_image_one = ?, ';
+      updateValues.push(desc_sub_image_one);
+    }
+    if(desc_sub_image_two){
+      updateQuery += ' desc_sub_image_two = ?, ';
+      updateValues.push(desc_sub_image_two);
+    }
+    updateQuery = updateQuery.slice(0,-2) + ' WHERE product_id = ?';
+    updateValues.push(productId);
+
+    try {
+      const con = await pool.getConnection();
+      const [result] = await con.execute(
+        updateQuery,
+        updateValues
+      );
+      con.release();
+      console.log('Brief description updated successfully:', result);
+      res.status(200).send('Brief description updated successfully');
+    } catch (error) {
+      console.error('Error updating brief description:', error);
+      res.status(500).send('Failed to update brief description');
+    }
+
+})
+//delete product
+app.delete('/deleteProduct/:productId', async (req, res) => {
+   const { productId } = req.params;
+   try {
+     const con = await pool.getConnection();
+      const [result2] = await con.execute(
+       'DELETE FROM product_description WHERE product_id = ?',
+       [productId]
+     )
+      const [result3] = await con.execute(
+       'DELETE FROM brief_description WHERE product_id = ?',
+       [productId]
+     );
+     const [result] = await con.execute(
+       'DELETE FROM products WHERE product_id = ?',
+       [productId]
+     );
+    
+    
+     con.release();
+     console.log('Product and its related data deleted successfully:', result);
+     res.status(200).send('Product deleted successfully');
+   } catch (error) {
+     console.error('Error deleting product:', error);
+     res.status(500).send('Failed to delete product');
+   }
+});
 app.listen(5000,() => console.log('The server is running on 5000'))
 
 
